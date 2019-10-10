@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*- 
 
 #
+# Copyright 2019 Benjamin Milde (Universitaet Hamburg)
 # Copyright 2016, 2017, 2018 Guenter Bartsch
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,45 +36,47 @@ import simpleaudio as sa
 
 MARY_VOICES = {
 
-    'en_US': { 'male':   ["cmu-rms-hsmm", "dfki-spike", "dfki-obadiah", "dfki-obadiah-hsmm", "cmu-bdl-hsmm"],
-               'female': ["cmu-slt-hsmm", "dfki-poppy", "dfki-poppy-hsmm", "dfki-prudence", "dfki-prudence-hsmm"]
-             },
+    'en_US': {'male': ["cmu-rms-hsmm", "dfki-spike", "dfki-obadiah", "dfki-obadiah-hsmm", "cmu-bdl-hsmm"],
+              'female': ["cmu-slt-hsmm", "dfki-poppy", "dfki-poppy-hsmm", "dfki-prudence", "dfki-prudence-hsmm"]
+              },
 
-    'de_DE': { 'male':   ["bits3", "bits3-hsmm", "dfki-pavoque-neutral", "dfki-pavoque-neutral-hsmm", "dfki-pavoque-styles"],
-               'female': ["bits1-hsmm"]
-             }
-    }
+    'de_DE': {'male': ["bits3", "bits3-hsmm", "dfki-pavoque-neutral", "dfki-pavoque-neutral-hsmm", "dfki-pavoque-styles"],
+              'female': ["bits1-hsmm"]
+              }
+}
 
-DEFAULT_MARY_VOICE   = 'dfki-pavoque-neutral'
-DEFAULT_MARY_LOCALE  = 'de_DE'
+DEFAULT_MARY_VOICE = 'dfki-pavoque-neutral'
+DEFAULT_MARY_LOCALE = 'de_DE'
 
 
 class TTS(object):
 
-    def __init__(self, 
-                 host_tts    =        'local', 
-                 port_tts    =           8300, 
-                 locale      =        DEFAULT_MARY_LOCALE,
-                 engine      =         'mary', 
-                 voice       = DEFAULT_MARY_VOICE,
-                 pitch       =             50,  # 0-99
-                 speed       =            175): # approx. words per minute
+    def __init__(self,
+                 host_tts='local',
+                 port_tts=8300,
+                 locale=DEFAULT_MARY_LOCALE,
+                 engine='mary',
+                 voice=DEFAULT_MARY_VOICE,
+                 pitch=50,  # 0-99
+                 speed=175):  # approx. words per minute
 
         self._host_tts = host_tts
         self._port_tts = port_tts
-        self._locale   = locale
-        self._engine   = engine
-        self._voice    = voice
-        self._pitch    = pitch
-        self._speed    = speed
+        self._locale = locale
+        self._engine = engine
+        self._voice = voice
+        self._pitch = pitch
+        self._speed = speed
 
         if host_tts == 'local':
             self.marytts = MaryTTS()
-            self.picotts = None # lazy-loading to reduce package dependencies
+            # lazy-loading to reduce package dependencies
+            self.picotts = None
 
     @property
     def locale(self):
         return self._locale
+
     @locale.setter
     def locale(self, v):
         self._locale = v
@@ -81,6 +84,7 @@ class TTS(object):
     @property
     def engine(self):
         return self._engine
+
     @engine.setter
     def engine(self, v):
         self._engine = v
@@ -88,6 +92,7 @@ class TTS(object):
     @property
     def voice(self):
         return self._voice
+
     @voice.setter
     def voice(self, v):
         self._voice = v
@@ -95,6 +100,7 @@ class TTS(object):
     @property
     def pitch(self):
         return self._pitch
+
     @pitch.setter
     def pitch(self, v):
         self._pitch = v
@@ -102,6 +108,7 @@ class TTS(object):
     @property
     def speed(self):
         return self._speed
+
     @speed.setter
     def speed(self, v):
         self._speed = v
@@ -138,7 +145,7 @@ class TTS(object):
                         self.picotts = PicoTTS()
 
                     self.picotts.voice = self._voice
-                    wav = self.picotts.synth_wav (txt)
+                    wav = self.picotts.synth_wav(txt)
                     # logging.debug ('synthesize: %s %s -> %s' % (txt, mode, repr(wav)))
 
                 else:
@@ -164,9 +171,9 @@ class TTS(object):
             wav = response.content
 
         if wav:
-            logging.debug ('synthesize: %s %s -> WAV' % (txt, mode))
+            logging.debug('synthesize: %s %s -> WAV' % (txt, mode))
         else:
-            logging.error ('synthesize: %s %s -> NO WAV' % (txt, mode))
+            logging.error('synthesize: %s %s -> NO WAV' % (txt, mode))
 
         return wav
 
@@ -179,7 +186,7 @@ class TTS(object):
                     wave_read = sa.wave.open(tmp_buffer, 'rb')
                     wave_obj = sa.WaveObject.from_wave_read(wave_read)
                     play_obj = wave_obj.play()
-                    if async_play == False:
+                    if not async_play:
                         play_obj.wait_done()
             else:
                 raise Exception('no wav data given')
@@ -187,7 +194,7 @@ class TTS(object):
         else:
 
             url = 'http://%s:%s/tts/play' % (self._host_tts, self._port_tts)
-                          
+
             if async_play:
                 url += '?async=t'
 
@@ -209,7 +216,7 @@ class TTS(object):
 
             if self.engine == 'mary':
 
-                self.marytts.voice  = self._voice
+                self.marytts.voice = self._voice
                 self.marytts.locale = self._locale
 
                 mp = self.marytts.g2p(word)
@@ -225,7 +232,7 @@ class TTS(object):
                 return sequiturclient.sequitur_gen_ipa(model, word)
 
             else:
-                raise Exception ("unknown engine '%s'" % self.engine)
+                raise Exception("unknown engine '%s'" % self.engine)
 
         else:
             args = {'l': self._locale,
@@ -240,4 +247,3 @@ class TTS(object):
                 return None
 
             return response.json()['ipa']
-

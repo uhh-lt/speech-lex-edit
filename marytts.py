@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
+# Copyright 2019 Benjamin Milde (Universitaet Hamburg)
 # Copyright 2017 Guenter Bartsch
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -152,8 +153,9 @@ class MaryTTS(object):
         wav = None
 
         try:
-            s = '<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="%s"><p><s><t g2p_method="lexicon" ph="%s" pos="NE"></t></s></p></maryxml>' % (
-            self.locale[:2], phonemes)
+            s = '<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="%s"><p><s><t ' \
+                'g2p_method="lexicon" ph="%s" pos="NE"></t></s></p></maryxml>' % (
+                    self.locale[:2], phonemes)
 
             self.input_type = "PHONEMES"
             self.output_type = "AUDIO"

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*- 
 
 #
+# Copyright 2019 Benjamin Milde (Universitaet Hamburg)
 # Copyright 2016, 2017 Guenter Bartsch
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,9 +25,10 @@ import logging
 import tempfile
 import traceback
 import subprocess
-#import misc
+# import misc
 
 from phonetics import xsampa2ipa
+
 
 def run_command(command, capture_stderr=True):
     p = subprocess.Popen(command,
@@ -43,7 +45,7 @@ def sequitur_gen_phn_variants(modelfn, word, variants=5):
         f.write((u'%s\n' % word).encode('utf8'))
         f.flush()
 
-        cmd = ['g2p.py', '--encoding=UTF8', "--variants-number="+str(variants), '--model', modelfn, '--apply', f.name]
+        cmd = ['g2p.py', '--encoding=UTF8', "--variants-number=" + str(variants), '--model', modelfn, '--apply', f.name]
 
         res = run_command(cmd)
 
@@ -75,8 +77,8 @@ def sequitur_gen_phn_variants(modelfn, word, variants=5):
 
     return xs
 
-def sequitur_gen_phn(modelfn, word):
 
+def sequitur_gen_phn(modelfn, word):
     xs = ''
 
     with tempfile.NamedTemporaryFile() as f:
@@ -109,13 +111,13 @@ def sequitur_gen_phn(modelfn, word):
 
                 xs = parts[1]
                 # print 'XS', xs
-           
-                #ipa = xsampa2ipa(word, xs)
+
+                # ipa = xsampa2ipa(word, xs)
 
     return xs
 
-def sequitur_gen_phn_multi(modelfn, words):
 
+def sequitur_gen_phn_multi(modelfn, words):
     phn_map = {}
 
     with tempfile.NamedTemporaryFile() as f:
@@ -149,15 +151,13 @@ def sequitur_gen_phn_multi(modelfn, words):
             try:
                 word = parts[0]
                 if word in words:
-
                     xs = parts[1]
                     # print 'XS', xs
-               
-                    #ipa = xsampa2ipa(word, xs)
+
+                    # ipa = xsampa2ipa(word, xs)
                     phn_map[word] = xs
             except:
                 logging.error("Error processing line %s:" % line)
                 logging.error(traceback.format_exc())
 
     return phn_map
-
