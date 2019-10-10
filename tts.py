@@ -170,7 +170,7 @@ class TTS(object):
 
         return wav
 
-    def play_wav(self, wav, async=False):
+    def play_wav(self, wav, async_play=False):
 
         if self._host_tts == 'local':
 
@@ -179,7 +179,7 @@ class TTS(object):
                     wave_read = sa.wave.open(tmp_buffer, 'rb')
                     wave_obj = sa.WaveObject.from_wave_read(wave_read)
                     play_obj = wave_obj.play()
-                    if async == False:
+                    if async_play == False:
                         play_obj.wait_done()
             else:
                 raise Exception('no wav data given')
@@ -188,20 +188,20 @@ class TTS(object):
 
             url = 'http://%s:%s/tts/play' % (self._host_tts, self._port_tts)
                           
-            if async:
+            if async_play:
                 url += '?async=t'
 
             response = requests.post(url, data=wav)
 
-    def say(self, utterance, async=False):
+    def say(self, utterance, async_play=False):
 
         wav = self.synthesize(utterance)
-        self.play_wav(wav, async=async)
+        self.play_wav(wav, async_play=async_play)
 
-    def say_phn(self, phn, phn_format='mary', async=False):
+    def say_phn(self, phn, phn_format='mary', async_play=False):
 
         wav = self.synthesize(phn, mode=phn_format)
-        self.play_wav(wav, async=async)
+        self.play_wav(wav, async_play=async_play)
 
     def gen_phn(self, word, model='dicts/de_g2p_model-6', phn_format='mary'):
 
