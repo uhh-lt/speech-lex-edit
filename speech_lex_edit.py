@@ -35,14 +35,13 @@ auto_save = True
 
 tts_client = tts.TTS()
 
-
 def load_wordlist(wordlist):
     wordlist_ret = []
     with open(wordlist, 'r') as wordlist_reader:
         for line in wordlist_reader:
             if line[-1] == '\n':
                 line = line[:-1]
-                wordlist_ret.append(line)
+            wordlist_ret.append(line)
     return wordlist_ret
 
 def play(phn):
@@ -73,6 +72,7 @@ def onselect_wordbox(evt, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns
 
     change_g2p(value, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text, input_word_text)
 
+# reload automatically generated phoneme entry suggestions
 def change_g2p(word, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text, input_word_text, num_variants=5):
     phn_input_list = sequiturclient.sequitur_gen_phn_variants(sequitur_model, word, variants=num_variants)
 
@@ -94,12 +94,14 @@ def change_g2p(word, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, inp
         input_word_text.delete(0, END)
         input_word_text.insert(0, word)
 
+# delete one entry form the dictionary list box
 def delete_entry(listDict):
     listDict.delete(ACTIVE)
     if auto_save:
         print("Active entry deleted.")
         save(listDict, output_lexicon)
 
+# add an element and automatically select the next one
 def add_and_next(listDict, input_word_text, input_phn_text):
     entry = input_word_text.get() + ' | ' + input_phn_text.get()
     listDict.insert(END, entry)
@@ -122,13 +124,27 @@ def save(listDict, filename):
             print(word, phns)
             out_file.write(word + ' ' + phns + '\n')
 
+def load(listDict, filename):
+    print("Loading dictionary from:", filename)
+
+    with open(filename, 'r') as in_file:
+        for line in in_file:
+
+            if line[-1] == '\n':
+                line = line[:-1]
+            split = line.split(" ")
+            word = split[0]
+            phn = " ".join(split[1:])
+
+            listDict.insert(END, word + " | " + phn)
+
 def save_and_exit(listDict):
     save(listDict, output_lexicon)
     sys.exit()
 
 def backup(listDict):
     now = datetime.now()
-    dt_string = now.strftime("%d_%m_%Y__%H_%M_%S")
+    dt_string = now.strftime("%Y_%m_%d____%H_%M_%S")
     filename = "backup_" + dt_string + ".dict"
     save(listDict, "dicts/" + filename)
 
@@ -161,6 +177,7 @@ def start_window(num_variants=5):
 
     row_num_offet = 2
 
+    # Labels (probability, auto phoneme sequence) + play + copy buttons for all phoneme variants (usually 5)
     for row_num in range(num_variants):
         proba_lbl = Label(window, text=phn_input_list[row_num]['proba'])
         proba_lbl.grid(column=0, row=row_num+row_num_offet)
@@ -172,16 +189,17 @@ def start_window(num_variants=5):
 
         phn_lbls.append(lbl)
 
+        # also bind to F1-F5 hot keys
         play_btn = Button(window, text="Play (F"+str(row_num+1)+")") #, command=partial(play, phn_input_list[row_num]['phn']))
         play_btn.grid(column=2, row=row_num+row_num_offet)
         phn_play_btns.append(play_btn)
 
+        # also bind to F8-F12 hot keys
         copy_btn = Button(window, text="Copy (F"+str(12 - num_variants + row_num+1)+")") #, command=partial(copy, phn_input_list[row_num]['phn'], input_text))
         copy_btn.grid(column=3, row=row_num+row_num_offet)
         copy_btns.append(copy_btn)
 
     # frames and scrollbar
-
     frm = Frame(window)
     frm.grid(row=1, column=0, sticky=N + S)
     window.rowconfigure(1, weight=1)
@@ -212,8 +230,8 @@ def start_window(num_variants=5):
     for x in load_wordlist(todo_wordlist):
         listNodes.insert(END, x)
 
-    #for x in "ABCDEFGHIJKLLMNOP":
-    #    listDict.insert(END, x + "|")
+    # Load the current dictionary in output_lexicon into th GUI
+    load(listDict, output_lexicon)
 
     add_and_next_btn = Button(window, text="Add&Next (Ctrl+↵)", command=partial(add_and_next, listDict, input_word_text, input_phn_text))
     add_and_next_btn.grid(column=3, row=8)
