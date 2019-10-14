@@ -44,7 +44,7 @@ key_bindings_mac = {"backup_btn": ("<Command-b>", "Cmd+B"),
                       "change_g2p_textbox": ("<Command-g>", "Cmd+G"),
                       "add_and_next": ("<Command-Return>", "Cmd+↵"),
                       "number_key": ("<Command-%d>", "Cmd-%d"),
-                      "play_btn_hotkey": ("<Command-z>", "Cmd-z")
+                      "play_btn_hotkey": ("<Command-p>", "Cmd-P")
 }
 
 key_bindings_pc = {"backup_btn": ("<Control-b>", "Ctrl+B"),
