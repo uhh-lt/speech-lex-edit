@@ -64,7 +64,8 @@ def copy(phn, input_text):
 def copy_evt(evt, phn, input_text):
     copy(phn, input_text)
 
-def onselect_wordbox(evt, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text, input_word_text, num_variants=5):
+def onselect_wordbox(evt, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns,
+                     input_phn_text, input_word_text, num_variants=5):
     w = evt.widget
     index = int(w.curselection()[0])
     value = w.get(index)
@@ -73,7 +74,28 @@ def onselect_wordbox(evt, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns
     change_g2p(value, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text, input_word_text)
 
 # reload automatically generated phoneme entry suggestions
-def change_g2p(word, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text, input_word_text, num_variants=5):
+def change_g2p(word, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text,
+               input_word_text, num_variants=5):
+
+    # setting g2p proba and text labels to loading
+    for row_num in range(num_variants):
+        if row_num == 0:
+            phn_lbls[row_num].config(text='loading...')
+            proba_lbls[row_num].config(text='loading...')
+        else:
+            phn_lbls[row_num].config(text='')
+            proba_lbls[row_num].config(text='')
+
+    if input_phn_text:
+        input_phn_text.delete(0, END)
+        input_phn_text.insert(0, '')
+
+    if input_word_text:
+        input_word_text.delete(0, END)
+        input_word_text.insert(0, word)
+
+    window.update_idletasks()
+
     phn_input_list = sequiturclient.sequitur_gen_phn_variants(sequitur_model, word, variants=num_variants)
 
     for row_num in range(num_variants):
@@ -84,15 +106,13 @@ def change_g2p(word, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, inp
 
         window.bind("<F"+str(row_num+1)+">", partial(play_evt, phn=phn_input_list[row_num]['phn']))
 
-        window.bind("<F" + str(12 - num_variants + row_num+1) + ">", partial(copy_evt, phn=phn_input_list[row_num]['phn'], input_text=input_phn_text))
+        window.bind("<F" + str(12 - num_variants + row_num+1) + ">", partial(copy_evt,
+                                                                             phn=phn_input_list[row_num]['phn'],
+                                                                             input_text=input_phn_text))
 
     if input_phn_text:
         input_phn_text.delete(0, END)
         input_phn_text.insert(0, phn_input_list[0]['phn'])
-
-    if input_word_text:
-        input_word_text.delete(0, END)
-        input_word_text.insert(0, word)
 
 # delete one entry form the dictionary list box
 def delete_entry(listDict):
@@ -101,16 +121,45 @@ def delete_entry(listDict):
         print("Active entry deleted.")
         save(listDict, output_lexicon)
 
+def next_selection(listNodes):
+    selection_indices = listNodes.curselection()
+
+    # default next selection is the beginning
+    next_selection = 0
+
+    # make sure at least one item is selected
+    if len(selection_indices) > 0:
+        # Get the last selection, remember they are strings for some reason
+        # so convert to int
+        last_selection = int(selection_indices[-1])
+
+        # clear current selections
+        listNodes.selection_clear(selection_indices)
+
+        # Make sure we're not at the last item
+        if last_selection < listNodes.size() - 1:
+            next_selection = last_selection + 1
+
+    listNodes.activate(next_selection)
+    listNodes.selection_set(next_selection)
+
+    listNodes.event_generate("<<ListboxSelect>>", when="tail")
+
+    return next_selection
+
 # add an element and automatically select the next one
-def add_and_next(listDict, input_word_text, input_phn_text):
+def add_and_next(listDict, listNodes, input_word_text, input_phn_text):
     entry = input_word_text.get() + ' | ' + input_phn_text.get()
     listDict.insert(END, entry)
     if auto_save:
         print("Added entry:" + entry)
         save(listDict, output_lexicon)
 
-def add_and_next_evt(evt, listDict, input_word_text, input_phn_text):
-    add_and_next(listDict, input_word_text, input_phn_text)
+    sel_id = next_selection(listNodes)
+    print('Add and next: selecting new element with id', sel_id)
+
+def add_and_next_evt(evt, listDict, listNodes, input_word_text, input_phn_text):
+    add_and_next(listDict, listNodes, input_word_text, input_phn_text)
 
 def save(listDict, filename):
     print("Saving dictionary to:", filename)
@@ -126,6 +175,8 @@ def save(listDict, filename):
 
 def load(listDict, filename):
     print("Loading dictionary from:", filename)
+
+    os.path.isfile()
 
     with open(filename, 'r') as in_file:
         for line in in_file:
@@ -169,7 +220,8 @@ def start_window(num_variants=5):
 
     play_btn_hotkey = "F"+str(num_variants+1)
 
-    play_btn = Button(window, text="Play (" + play_btn_hotkey + ")", command=partial(play_text, input_text=input_phn_text))
+    play_btn = Button(window, text="Play (" + play_btn_hotkey + ")", command=partial(play_text,
+                                                                                     input_text=input_phn_text))
     play_btn.grid(column=2, row=8)
     phn_play_btns.append(play_btn)
 
@@ -190,12 +242,12 @@ def start_window(num_variants=5):
         phn_lbls.append(lbl)
 
         # also bind to F1-F5 hot keys
-        play_btn = Button(window, text="Play (F"+str(row_num+1)+")") #, command=partial(play, phn_input_list[row_num]['phn']))
+        play_btn = Button(window, text="Play (F"+str(row_num+1)+")")
         play_btn.grid(column=2, row=row_num+row_num_offet)
         phn_play_btns.append(play_btn)
 
         # also bind to F8-F12 hot keys
-        copy_btn = Button(window, text="Copy (F"+str(12 - num_variants + row_num+1)+")") #, command=partial(copy, phn_input_list[row_num]['phn'], input_text))
+        copy_btn = Button(window, text="Copy (F"+str(12 - num_variants + row_num+1)+")")
         copy_btn.grid(column=3, row=row_num+row_num_offet)
         copy_btns.append(copy_btn)
 
@@ -210,9 +262,10 @@ def start_window(num_variants=5):
 
     listNodes = Listbox(frm, width=20, yscrollcommand=scrollbar.set, font=("Helvetica", 12))
     listNodes.pack(expand=True, fill=Y)
-    listNodes.bind('<<ListboxSelect>>', partial(onselect_wordbox, window=window, proba_lbls=proba_lbls, phn_lbls=phn_lbls,
-                                                phn_play_btns=phn_play_btns, copy_btns=copy_btns, input_phn_text=input_phn_text,
-                                                input_word_text=input_word_text, num_variants=num_variants))
+    listNodes.bind('<<ListboxSelect>>', partial(onselect_wordbox, window=window, proba_lbls=proba_lbls,
+                                                phn_lbls=phn_lbls, phn_play_btns=phn_play_btns, copy_btns=copy_btns,
+                                                input_phn_text=input_phn_text, input_word_text=input_word_text,
+                                                num_variants=num_variants))
     scrollbar.config(command=listNodes.yview)
 
     frm2 = Frame(window)
@@ -233,15 +286,19 @@ def start_window(num_variants=5):
     # Load the current dictionary in output_lexicon into th GUI
     load(listDict, output_lexicon)
 
-    add_and_next_btn = Button(window, text="Add&Next (Ctrl+↵)", command=partial(add_and_next, listDict, input_word_text, input_phn_text))
+    add_and_next_btn = Button(window, text="Add&Next (Ctrl+↵)", command=partial(add_and_next, listDict=listDict,
+                                                                                listNodes=listNodes,
+                                                                                input_word_text=input_word_text,
+                                                                                input_phn_text=input_phn_text))
     add_and_next_btn.grid(column=3, row=8)
 
-    window.bind("<Control-Return>", partial(add_and_next_evt, listDict=listDict, input_word_text=input_word_text, input_phn_text=input_phn_text))
+    window.bind("<Control-Return>", partial(add_and_next_evt, listDict=listDict, listNodes=listNodes,
+                                            input_word_text=input_word_text, input_phn_text=input_phn_text))
 
     delete_btn = Button(window, text="Delete Entry", command=partial(delete_entry, listDict))
     delete_btn.grid(column=2, row=1)
 
-    save_and_exit_btn = Button(window, text="Save&Exit", command=partial(save_and_exit, listDict))
+    save_and_exit_btn = Button(window, text="Save&Exit", command=partial(save_and_exit, listDict, listNodes))
     save_and_exit_btn.grid(column=3, row=1)
 
     save_and_exit_btn = Button(window, text="Backup", command=partial(backup, listDict))
