@@ -44,14 +44,14 @@ key_bindings_mac = {"backup_btn": ("<Command-b>", "Cmd+B"),
                       "change_g2p_textbox": ("<Command-g>", "Cmd+G"),
                       "add_and_next": ("<Command-Return>", "Cmd+↵"),
                       "number_key": ("<Command-%d>", "Cmd-%d"),
-                      "play_btn_hotkey": ("<Command-y>", "Cmd-Y")
+                      "play_btn_hotkey": ("<Command-z>", "Cmd-z")
 }
 
 key_bindings_pc = {"backup_btn": ("<Control-b>", "Ctrl+B"),
                       "change_g2p_textbox": ("<Control-g>", "Ctrl+G"),
                       "add_and_next": ("<Control-Return>", "Ctrl+↵"),
                       "number_key": ("<F%d>", "F%d"),
-                      "play_btn_hotkey": ("<Control-y>", "Ctrl-Y")
+                      "play_btn_hotkey": ("<F12>", "F12")
 }
 
 # determine if we running on a Mac (and need different key bindings)
