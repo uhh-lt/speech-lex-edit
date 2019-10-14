@@ -65,6 +65,23 @@ def copy(phn, input_text):
 def copy_evt(evt, phn, input_text):
     copy(phn, input_text)
 
+def onselect_dictbox(evt, input_phn_text, input_word_text):
+    w = evt.widget
+    index = int(w.curselection()[0])
+    value = w.get(index)
+
+    print('You selected item %d: "%s"' % (index, value))
+
+    word, phn = value.split(' | ')
+
+    if input_phn_text:
+        input_phn_text.delete(0, END)
+        input_phn_text.insert(0, word)
+
+    if input_word_text:
+        input_word_text.delete(0, END)
+        input_word_text.insert(0, phn)
+
 def onselect_wordbox(evt, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns,
                      input_phn_text, input_word_text, num_variants=5):
     w = evt.widget
@@ -294,6 +311,8 @@ def start_window(num_variants=5):
 
     listDict = Listbox(frm2, height=20,  width=40, yscrollcommand=scrollbar2.set, font=("Helvetica", 12))
     listDict.pack(expand=True, fill=Y)
+    listDict.bind('<<ListboxSelect>>', partial(onselect_dictbox, input_phn_text=input_phn_text,
+                                               input_word_text=input_word_text))
 #    listSelection.grid(row=1, column=1, sticky=E + W + N)
 
     scrollbar2.config(command=listDict.yview)
