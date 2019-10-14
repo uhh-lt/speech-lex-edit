@@ -43,7 +43,7 @@ tts_client = tts.TTS()
 key_bindings_mac = {"backup_btn": ("<Command-b>", "⌘+B"),
                       "change_g2p_textbox": ("<Command-g>", "⌘+G"),
                       "add_and_next": ("<Command-Return>", "⌘+↵"),
-                      "number_key": ("<Command-%d>", "⌘+%d"),
+                      "number_key": ("<Command-Key-%d>", "⌘+%d"),
                       "play_btn_hotkey": ("<Command-p>", "⌘+P")
 }
 
