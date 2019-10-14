@@ -27,6 +27,7 @@ from datetime import datetime
 import tts
 import sequiturclient
 import sys
+import os
 
 sequitur_model = "dicts/de_g2p_model-6"
 todo_wordlist = "todo_wordlist.txt"
@@ -174,20 +175,21 @@ def save(listDict, filename):
             out_file.write(word + ' ' + phns + '\n')
 
 def load(listDict, filename):
-    print("Loading dictionary from:", filename)
 
-    os.path.isfile()
+    if os.path.isfile(filename):
+        print("Loading dictionary from:", filename)
+        with open(filename, 'r') as in_file:
+            for line in in_file:
 
-    with open(filename, 'r') as in_file:
-        for line in in_file:
+                if line[-1] == '\n':
+                    line = line[:-1]
+                split = line.split(" ")
+                word = split[0]
+                phn = " ".join(split[1:])
 
-            if line[-1] == '\n':
-                line = line[:-1]
-            split = line.split(" ")
-            word = split[0]
-            phn = " ".join(split[1:])
-
-            listDict.insert(END, word + " | " + phn)
+                listDict.insert(END, word + " | " + phn)
+    else:
+        print("Warning, not loading dictionary since there was none:", filename)
 
 def save_and_exit(listDict):
     save(listDict, output_lexicon)
