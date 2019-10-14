@@ -43,13 +43,15 @@ tts_client = tts.TTS()
 key_bindings_mac = {"backup_btn": ("<Command-b>", "Cmd+B"),
                       "change_g2p_textbox": ("<Command-g>", "Cmd+G"),
                       "add_and_next": ("<Command-Return>", "Cmd+↵"),
-                      "number_key": ("<Command-%d>", "Cmd-%d")
+                      "number_key": ("<Command-%d>", "Cmd-%d"),
+                      "play_btn_hotkey": ("<Command-y>", "Cmd-Y")
 }
 
 key_bindings_pc = {"backup_btn": ("<Control-b>", "Ctrl+B"),
                       "change_g2p_textbox": ("<Control-g>", "Ctrl+G"),
                       "add_and_next": ("<Control-Return>", "Ctrl+↵"),
-                      "number_key": ("<F%d>", "F%d")
+                      "number_key": ("<F%d>", "F%d"),
+                      "play_btn_hotkey": ("<Control-y>", "Ctrl-Y")
 }
 
 # determine if we running on a Mac (and need different key bindings)
@@ -159,7 +161,11 @@ def change_g2p(word, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, inp
 
         window.bind(key_bindings["number_key"][0] % (row_num+1), partial(play_evt, phn=phn_input_list[row_num]['phn']))
 
-        window.bind(key_bindings["number_key"][0] % (12 - num_variants + row_num+1), partial(copy_evt,
+        bind_num = 10 - num_variants + row_num+1
+        if platform.system() == 'Darwin' and bind_num==10:
+            bind_num = 0
+
+        window.bind(key_bindings["number_key"][0] % bind_num, partial(copy_evt,
                                                                              phn=phn_input_list[row_num]['phn'],
                                                                              input_text=input_phn_text))
 
@@ -275,14 +281,15 @@ def start_window(num_variants=5):
     input_word_text = Entry(window, width=20)
     input_word_text.grid(column=0, row=8)
 
-    play_btn_hotkey = "F"+str(num_variants+1)
+    play_btn_hotkey = key_bindings["play_btn_hotkey"][0]
+    play_btn_hotkey_text = key_bindings["play_btn_hotkey"][1]
 
-    play_btn = Button(window, text="Play (" + play_btn_hotkey + ")", command=partial(play_text,
+    play_btn = Button(window, text="Play (" + play_btn_hotkey_text + ")", command=partial(play_text,
                                                                                      input_text=input_phn_text))
     play_btn.grid(column=2, row=8)
     phn_play_btns.append(play_btn)
 
-    window.bind("<"+play_btn_hotkey+">", partial(play_text_evt, input_text=input_phn_text))
+    window.bind(play_btn_hotkey, partial(play_text_evt, input_text=input_phn_text))
 
     row_num_offet = 2
 
@@ -304,7 +311,7 @@ def start_window(num_variants=5):
         phn_play_btns.append(play_btn)
 
         # also bind to F8-F12 hot keys
-        copy_btn = Button(window, text="Copy ("+key_bindings["number_key"][1] % (12 - num_variants + row_num+1)+")")
+        copy_btn = Button(window, text="Copy ("+key_bindings["number_key"][1] % (10 - num_variants + row_num+1)+")")
         copy_btn.grid(column=3, row=row_num+row_num_offet)
         copy_btns.append(copy_btn)
 
