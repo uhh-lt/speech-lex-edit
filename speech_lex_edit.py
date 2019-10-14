@@ -28,6 +28,7 @@ import tts
 import sequiturclient
 import sys
 import os
+import platform
 
 sequitur_model = "dicts/de_g2p_model-6"
 todo_wordlist = "todo_wordlist.txt"
@@ -35,6 +36,27 @@ output_lexicon = "output_lexicon.txt"
 auto_save = True
 
 tts_client = tts.TTS()
+
+# you can configure key bindings here. Note that we need different ones for Mac,
+# as Cmd is standard for commands and the F1-12 keys are buggy in tkinker
+
+key_bindings_mac = {"backup_btn": ("<Command-b>", "Cmd+B"),
+                      "change_g2p_textbox": ("<Command-g>", "Cmd+G"),
+                      "add_and_next": ("<Command-Return>", "Cmd+↵"),
+                      "number_key": ("<Command-%d>", "Cmd-%d")
+}
+
+key_bindings_pc = {"backup_btn": ("<Control-b>", "Ctrl+B"),
+                      "change_g2p_textbox": ("<Control-g>", "Ctrl+G"),
+                      "add_and_next": ("<Control-Return>", "Ctrl+↵"),
+                      "number_key": ("<F%d>", "F%d")
+}
+
+# determine if we running on a Mac (and need different key bindings)
+if platform.system() == 'Darwin':
+    key_bindings = key_bindings_mac
+else:
+    key_bindings = key_bindings_pc
 
 def load_wordlist(wordlist):
     wordlist_ret = []
@@ -135,9 +157,9 @@ def change_g2p(word, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, inp
         phn_play_btns[row_num+1].config(command=partial(play, phn_input_list[row_num]['phn']))
         copy_btns[row_num].config(command=partial(copy, phn_input_list[row_num]['phn'], input_phn_text))
 
-        window.bind("<F"+str(row_num+1)+">", partial(play_evt, phn=phn_input_list[row_num]['phn']))
+        window.bind(key_bindings["number_key"][0] % (row_num+1), partial(play_evt, phn=phn_input_list[row_num]['phn']))
 
-        window.bind("<F" + str(12 - num_variants + row_num+1) + ">", partial(copy_evt,
+        window.bind(key_bindings["number_key"][0] % (12 - num_variants + row_num+1), partial(copy_evt,
                                                                              phn=phn_input_list[row_num]['phn'],
                                                                              input_text=input_phn_text))
 
@@ -277,12 +299,12 @@ def start_window(num_variants=5):
         phn_lbls.append(lbl)
 
         # also bind to F1-F5 hot keys
-        play_btn = Button(window, text="Play (F"+str(row_num+1)+")")
+        play_btn = Button(window, text="Play ("+key_bindings["number_key"][1] % (row_num+1)+")")
         play_btn.grid(column=2, row=row_num+row_num_offet)
         phn_play_btns.append(play_btn)
 
         # also bind to F8-F12 hot keys
-        copy_btn = Button(window, text="Copy (F"+str(12 - num_variants + row_num+1)+")")
+        copy_btn = Button(window, text="Copy ("+key_bindings["number_key"][1] % (12 - num_variants + row_num+1)+")")
         copy_btn.grid(column=3, row=row_num+row_num_offet)
         copy_btns.append(copy_btn)
 
@@ -323,13 +345,13 @@ def start_window(num_variants=5):
     # Load the current dictionary in output_lexicon into th GUI
     load(listDict, output_lexicon)
 
-    add_and_next_btn = Button(window, text="Add&Next (Ctrl+↵)", command=partial(add_and_next, listDict=listDict,
+    add_and_next_btn = Button(window, text="Add&Next ("+key_bindings["add_and_next"][1]+")", command=partial(add_and_next, listDict=listDict,
                                                                                 listNodes=listNodes,
                                                                                 input_word_text=input_word_text,
                                                                                 input_phn_text=input_phn_text))
     add_and_next_btn.grid(column=3, row=8)
 
-    window.bind("<Control-Return>", partial(add_and_next_evt, listDict=listDict, listNodes=listNodes,
+    window.bind(key_bindings["add_and_next"][0], partial(add_and_next_evt, listDict=listDict, listNodes=listNodes,
                                             input_word_text=input_word_text, input_phn_text=input_phn_text))
 
     delete_btn = Button(window, text="Delete Entry", command=partial(delete_entry, listDict))
@@ -338,18 +360,18 @@ def start_window(num_variants=5):
     save_and_exit_btn = Button(window, text="Save&Exit", command=partial(save_and_exit, listDict, listNodes))
     save_and_exit_btn.grid(column=3, row=1)
 
-    save_and_exit_btn = Button(window, text="Backup (Ctrl+B)", command=partial(backup, listDict))
-    save_and_exit_btn.grid(column=4, row=1)
+    backup_btn = Button(window, text="Backup ("+key_bindings["backup_btn"][1]+")", command=partial(backup, listDict))
+    backup_btn.grid(column=4, row=1)
 
-    window.bind("<Control-b>", partial(backup_evt, listDict=listDict))
+    window.bind(key_bindings["backup_btn"][0], partial(backup_evt, listDict=listDict))
 
-    reload_g2p_btn = Button(window, text="↻G2P (Ctrl+G)", command=partial(change_g2p_textbox,  window=window,
+    reload_g2p_btn = Button(window, text="↻G2P ("+key_bindings["change_g2p_textbox"][1]+")", command=partial(change_g2p_textbox,  window=window,
                                                                  proba_lbls=proba_lbls, phn_lbls=phn_lbls,
                                                                  phn_play_btns=phn_play_btns,  copy_btns=copy_btns,
                                                                  input_phn_text=input_phn_text,
                                                                  input_word_text=input_word_text))
 
-    window.bind("<Control-g>", partial(change_g2p_textbox_evt,  window=window,
+    window.bind(key_bindings["change_g2p_textbox"][0] , partial(change_g2p_textbox_evt,  window=window,
                                                                  proba_lbls=proba_lbls, phn_lbls=phn_lbls,
                                                                  phn_play_btns=phn_play_btns,  copy_btns=copy_btns,
                                                                  input_phn_text=input_phn_text,
