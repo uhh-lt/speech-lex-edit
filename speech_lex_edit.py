@@ -74,6 +74,19 @@ def onselect_wordbox(evt, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns
 
     change_g2p(value, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text, input_word_text)
 
+# same as change_g2p_textbox, but allows an event agrument (for key binding)
+def change_g2p_textbox_evt(evt, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text,
+                           input_word_text, num_variants=5):
+    change_g2p_textbox(window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text,
+                       input_word_text, num_variants)
+
+# same as change_g2p, but with a textbox
+def change_g2p_textbox(window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text,
+                       input_word_text, num_variants=5):
+    word = input_word_text.get()
+    change_g2p(word, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text,
+                   input_word_text, num_variants)
+
 # reload automatically generated phoneme entry suggestions
 def change_g2p(word, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text,
                input_word_text, num_variants=5):
@@ -201,6 +214,9 @@ def backup(listDict):
     filename = "backup_" + dt_string + ".dict"
     save(listDict, "dicts/" + filename)
 
+def backup_evt(evt,listDict):
+    backup(listDict)
+
 def start_window(num_variants=5):
     window = Tk()
 
@@ -303,8 +319,24 @@ def start_window(num_variants=5):
     save_and_exit_btn = Button(window, text="Save&Exit", command=partial(save_and_exit, listDict, listNodes))
     save_and_exit_btn.grid(column=3, row=1)
 
-    save_and_exit_btn = Button(window, text="Backup", command=partial(backup, listDict))
+    save_and_exit_btn = Button(window, text="Backup (Ctrl+B)", command=partial(backup, listDict))
     save_and_exit_btn.grid(column=4, row=1)
+
+    window.bind("<Control-b>", partial(backup_evt, listDict=listDict))
+
+    reload_g2p_btn = Button(window, text="↻G2P (Ctrl+G)", command=partial(change_g2p_textbox,  window=window,
+                                                                 proba_lbls=proba_lbls, phn_lbls=phn_lbls,
+                                                                 phn_play_btns=phn_play_btns,  copy_btns=copy_btns,
+                                                                 input_phn_text=input_phn_text,
+                                                                 input_word_text=input_word_text))
+
+    window.bind("<Control-g>", partial(change_g2p_textbox_evt,  window=window,
+                                                                 proba_lbls=proba_lbls, phn_lbls=phn_lbls,
+                                                                 phn_play_btns=phn_play_btns,  copy_btns=copy_btns,
+                                                                 input_phn_text=input_phn_text,
+                                                                 input_word_text=input_word_text))
+
+    reload_g2p_btn.grid(column=4, row=8)
 
     change_g2p("test", window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text, input_word_text)
 
