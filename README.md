@@ -4,9 +4,12 @@ pip3 install simpleaudio requests
 
 simpleaudio is needed for audio output, the requests module is used to communicate with mary.
 
-Install seuitur G2P:
+Install sequitur G2P:
 
-It is now possible to install the latest version of sequitur-g2p with python3: 
+You can install sequitur G2P on Linux and on Mac OS X, dependencies are swig and Python. It is now possible to install the latest version of sequitur-g2p with python3 by using the newest version in Git: 
+
+sudo apt-get install swig #Ubuntu Linux
+brew install swig # Mac OS X
 
 pip3 install git+https://github.com/sequitur-g2p/sequitur-g2p@master
 
