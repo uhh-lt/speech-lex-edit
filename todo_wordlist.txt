@@ -1,10 +1,14 @@
 Upload
 Meeting
 Keyword
-Moin
+moin
 Button
 Debugger
 rot
 filter
 IT
 Bug
+Facebook
+machine
+learning
+deep
