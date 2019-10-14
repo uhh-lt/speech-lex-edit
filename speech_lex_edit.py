@@ -40,11 +40,11 @@ tts_client = tts.TTS()
 # you can configure key bindings here. Note that we need different ones for Mac,
 # as Cmd is standard for commands and the F1-12 keys are buggy in tkinker
 
-key_bindings_mac = {"backup_btn": ("<Command-b>", "Cmd+B"),
-                      "change_g2p_textbox": ("<Command-g>", "Cmd+G"),
-                      "add_and_next": ("<Command-Return>", "Cmd+↵"),
-                      "number_key": ("<Command-%d>", "Cmd-%d"),
-                      "play_btn_hotkey": ("<Command-p>", "Cmd-P")
+key_bindings_mac = {"backup_btn": ("<Command-b>", "⌘+B"),
+                      "change_g2p_textbox": ("<Command-g>", "⌘+G"),
+                      "add_and_next": ("<Command-Return>", "⌘+↵"),
+                      "number_key": ("<Command-%d>", "⌘+%d"),
+                      "play_btn_hotkey": ("<Command-p>", "⌘+P")
 }
 
 key_bindings_pc = {"backup_btn": ("<Control-b>", "Ctrl+B"),
@@ -162,7 +162,7 @@ def change_g2p(word, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, inp
         window.bind(key_bindings["number_key"][0] % (row_num+1), partial(play_evt, phn=phn_input_list[row_num]['phn']))
 
         bind_num = 10 - num_variants + row_num+1
-        if platform.system() == 'Darwin' and bind_num==10:
+        if platform.system() == 'Darwin' and bind_num == 10:
             bind_num = 0
 
         window.bind(key_bindings["number_key"][0] % bind_num, partial(copy_evt,
