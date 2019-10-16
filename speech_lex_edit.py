@@ -307,13 +307,17 @@ def start_window(num_variants=5):
 
         phn_lbls.append(lbl)
 
-        # also bind to F1-F5 hot keys
+        # also bind to F1-F5 hot keys, or cmd+1 - cmd+5 on Mac
         play_btn = Button(window, text="Play ("+key_bindings["number_key"][1] % (row_num+1)+")")
         play_btn.grid(column=2, row=row_num+row_num_offet)
         phn_play_btns.append(play_btn)
 
-        # also bind to F8-F12 hot keys
-        copy_btn = Button(window, text="Copy ("+key_bindings["number_key"][1] % (10 - num_variants + row_num+1)+")")
+        # also bind to F6-F10 hot keys, or cmd+6 - cmd+0 on Mac
+        bind_num = 10 - num_variants + row_num+1
+        if platform.system() == 'Darwin' and bind_num == 10:
+            bind_num = 0
+
+        copy_btn = Button(window, text="Copy ("+key_bindings["number_key"][1] % bind_num+")")
         copy_btn.grid(column=3, row=row_num+row_num_offet)
         copy_btns.append(copy_btn)
 
