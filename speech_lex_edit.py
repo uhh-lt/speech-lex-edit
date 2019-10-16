@@ -38,7 +38,7 @@ auto_save = True
 tts_client = tts.TTS()
 
 # you can configure key bindings here. Note that we need different ones for Mac,
-# as Cmd is standard for commands and the F1-12 keys are buggy in tkinker
+# as Cmd is standard for commands (instead of CTRL) and the F1-12 keys are buggy in tkinker on a Mac :/
 
 key_bindings_mac = {"backup_btn": ("<Command-b>", "⌘+B"),
                       "change_g2p_textbox": ("<Command-g>", "⌘+G"),
@@ -69,8 +69,8 @@ def load_wordlist(wordlist):
             wordlist_ret.append(line)
     return wordlist_ret
 
-def play(phn):
-    tts_client.say_phn(phn)
+def play(phn, async_play=True):
+    tts_client.say_phn(phn, async_play=async_play)
 
 def play_evt(evt, phn):
     play(phn)
@@ -100,11 +100,13 @@ def onselect_dictbox(evt, input_phn_text, input_word_text):
 
     if input_phn_text:
         input_phn_text.delete(0, END)
-        input_phn_text.insert(0, word)
+        input_phn_text.insert(0, phn)
 
     if input_word_text:
         input_word_text.delete(0, END)
-        input_word_text.insert(0, phn)
+        input_word_text.insert(0, word)
+
+    play(phn, async_play=True)
 
 def onselect_wordbox(evt, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns,
                      input_phn_text, input_word_text, num_variants=5):
