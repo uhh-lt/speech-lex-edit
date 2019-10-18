@@ -23,6 +23,8 @@ CPPFLAGS="-stdlib=libstdc++" pip3 install git+https://github.com/sequitur-g2p/se
  
 Or tell pip to use a real gcc compiler, as installed with brew (gcc/g++ usually also point to clang):
 
+brew install gcc@7
+
 CXX=g++-7 CC=gcc-7 pip3 install git+https://github.com/sequitur-g2p/sequitur-g2p@master
 
 You may need to install with sudo.
