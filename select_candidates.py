@@ -28,7 +28,7 @@ input_vocabulary = "voc.txt"
 output_file = "voc_todo.txt"
 sequitur_model = "dicts/de_g2p_model-6"
 num_variants = 3
-cutoff = 1000
+cutoff = 1000000
 num_read = 0
 candidate_dict = []
 num_cores = multiprocessing.cpu_count()
@@ -46,7 +46,7 @@ def process_word(elem):
         return (word, occs * -10.0, math.nan, occs)
 
     if num_read % 100 == 0:
-        print("At word:", word, phns[0]["proba"], phns[0]["phn"])
+        print("[%d/%d]" % (num_read,cutoff),"At word:", word, phns[0]["proba"], phns[0]["phn"])
 
     return (word, (1.0 - float(phns[0]["proba"])) * math.log10(float(occs)), float(phns[0]["proba"]), occs)
 
