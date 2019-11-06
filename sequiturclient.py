@@ -37,10 +37,13 @@ def run_command(command, capture_stderr=True):
     return iter(p.stdout.readline, b'')
 
 
-def sequitur_gen_phn_variants(modelfn, word, variants=5):
+def sequitur_gen_phn_variants(modelfn, word, variants=5, quiet=False, replaceDash=True):
     xs = []
 
     with tempfile.NamedTemporaryFile() as f:
+
+        if replaceDash:
+            word = word.replace("-","")
 
         f.write((u'%s\n' % word).encode('utf8'))
         f.flush()
@@ -57,7 +60,8 @@ def sequitur_gen_phn_variants(modelfn, word, variants=5):
 
             line = line.decode('utf8', errors='ignore')
 
-            print(line)
+            if not quiet:
+                print(line)
 
             logging.debug('%s' % line)
 
