@@ -310,11 +310,11 @@ def search_listboxes(window, listDict, listNodes):
         exact_match = True
 
     listDict_items = [elem.split(' | ')[0] for elem in listDict.get(0, END)]
-    print("listDict_items", listDict_items)
+    #print("listDict_items", listDict_items)
     listDict_index = search_listdict(search_string, listDict_items, exact_match)
 
     listNodes_items = listNodes.get(0, END)
-    print("listNodes_items:",listNodes_items)
+    #print("listNodes_items:",listNodes_items)
     listNodes_index = search_listdict(search_string, listNodes_items, exact_match)
 
     # found matching element, first select on nodes
