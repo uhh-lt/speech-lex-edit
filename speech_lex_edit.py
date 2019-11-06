@@ -17,12 +17,19 @@
 # limitations under the License.
 #
 #
-# speech lexicon editor in tkinker
+# Speech lexicon editor in tkinker
 #
+# Tested with Ubuntu Linux and Mac Os X
+#
+# The tts, marrytts, phonetics and sequiturclient submodules are adapted from https://github.com/gooofy/py-nltools are
+# https://github.com/gooofy/py-marytts
+# The submodules are also licensed under the Apache 2.0 license, see headers
 
 from tkinter import *
 from functools import partial
 from datetime import datetime
+from tkinter import simpledialog
+from tkinter import messagebox as mbox
 
 import tts
 import sequiturclient
@@ -44,14 +51,16 @@ key_bindings_mac = {"backup_btn": ("<Command-b>", "⌘+B"),
                       "change_g2p_textbox": ("<Command-g>", "⌘+G"),
                       "add_and_next": ("<Command-Return>", "⌘+↵"),
                       "number_key": ("<Command-Key-%d>", "⌘+%d"),
-                      "play_btn_hotkey": ("<Command-p>", "⌘+P")
+                      "play_btn_hotkey": ("<Command-p>", "⌘+P"),
+                      "find_btn_hotkey": ("<Command-f>", "⌘+F")
 }
 
 key_bindings_pc = {"backup_btn": ("<Control-b>", "Ctrl+B"),
                       "change_g2p_textbox": ("<Control-g>", "Ctrl+G"),
                       "add_and_next": ("<Control-Return>", "Ctrl+↵"),
                       "number_key": ("<F%d>", "F%d"),
-                      "play_btn_hotkey": ("<F12>", "F12")
+                      "play_btn_hotkey": ("<F12>", "F12"),
+                      "find_btn_hotkey": ("<Control-f>", "Ctrl+F")
 }
 
 # determine if we running on a Mac (and need different key bindings)
@@ -91,31 +100,41 @@ def copy_evt(evt, phn, input_text):
 
 def onselect_dictbox(evt, input_phn_text, input_word_text):
     w = evt.widget
-    index = int(w.curselection()[0])
-    value = w.get(index)
 
-    print('You selected item %d: "%s"' % (index, value))
+    cursel = w.curselection()
+    if cursel is not None and len(cursel) > 0:
+        index = int(cursel[0])
+        value = w.get(index)
 
-    word, phn = value.split(' | ')
+        print('You selected item %d: "%s"' % (index, value))
 
-    if input_phn_text:
-        input_phn_text.delete(0, END)
-        input_phn_text.insert(0, phn)
+        word, phn = value.split(' | ')
 
-    if input_word_text:
-        input_word_text.delete(0, END)
-        input_word_text.insert(0, word)
+        if input_phn_text:
+            input_phn_text.delete(0, END)
+            input_phn_text.insert(0, phn)
 
-    play(phn, async_play=True)
+        if input_word_text:
+            input_word_text.delete(0, END)
+            input_word_text.insert(0, word)
+
+        try:
+            play(phn, async_play=True)
+        except:
+            mbox.showinfo("Error", "Error in playback. Is MARY running?")
+
 
 def onselect_wordbox(evt, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns,
                      input_phn_text, input_word_text, num_variants=5):
     w = evt.widget
-    index = int(w.curselection()[0])
-    value = w.get(index)
-    print('You selected item %d: "%s"' % (index, value))
+    cursel = w.curselection()
 
-    change_g2p(value, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text, input_word_text)
+    if cursel is not None and len(cursel) > 0:
+        index = int(cursel[0])
+        value = w.get(index)
+        print('You selected item %d: "%s"' % (index, value))
+
+        change_g2p(value, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text, input_word_text)
 
 # same as change_g2p_textbox, but allows an event agrument (for key binding)
 def change_g2p_textbox_evt(evt, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text,
@@ -151,6 +170,7 @@ def change_g2p(word, window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, inp
         input_word_text.delete(0, END)
         input_word_text.insert(0, word)
 
+    # basically flush changes
     window.update_idletasks()
 
     phn_input_list = sequiturclient.sequitur_gen_phn_variants(sequitur_model, word, variants=num_variants)
@@ -251,9 +271,73 @@ def load(listDict, filename):
     else:
         print("Warning, not loading dictionary since there was none:", filename)
 
+def search_listdict(search_string, listDict_items, exact_match=False, split=''):
+    search_index = -1
+
+    # case insensitive search
+    search_string = search_string.lower()
+
+    for i, elem in enumerate(listDict_items):
+        if exact_match:
+            if elem.lower() == search_string:
+                search_index = i
+                return search_index
+        else:
+            if search_string in elem.lower():
+                search_index = i
+                return search_index
+
+    return search_index
+
+def setSelection(listDict, i):
+    selection_indices = listDict.curselection()
+    if selection_indices is not None and len(selection_indices) > 0:
+        # clear current selections
+        listDict.selection_clear(selection_indices)
+    listDict.activate(i)
+    listDict.selection_set(i)
+    #listDict.event_generate("<<ListboxSelect>>", when="tail")
+
+def search_listboxes(window, listDict, listNodes):
+    search_string = simpledialog.askstring("Search", "Input search string:",
+                                    parent=window)
+
+    if search_string is None or len(search_string) == 0:
+        return
+
+    exact_match = False
+    if search_string[0] == '^':
+        exact_match = True
+
+    listDict_items = [elem.split(' | ')[0] for elem in listDict.get(0, END)]
+    print("listDict_items", listDict_items)
+    listDict_index = search_listdict(search_string, listDict_items, exact_match)
+
+    listNodes_items = listNodes.get(0, END)
+    print("listNodes_items:",listNodes_items)
+    listNodes_index = search_listdict(search_string, listNodes_items, exact_match)
+
+    # found matching element, first select on nodes
+    if listNodes_index != -1:
+        setSelection(listNodes, listNodes_index)
+    else:
+        print(search_string, "not found")
+
+    # found matching element, then on dict (might clear the selection in nodes though)
+    if listDict_index != -1:
+        setSelection(listDict, listDict_index)
+    else:
+        print(search_string, "not found")
+
+def search_listboxes_evt(evt, window, listDict, listNodes):
+    return search_listboxes(window, listDict, listNodes)
+
 def save_and_exit(listDict):
     save(listDict, output_lexicon)
-    sys.exit()
+    if mbox.askyesno('Verify', 'Do you really want to quit?'):
+        sys.exit()
+    else:
+        mbox.showinfo('No', 'Quit has been cancelled')
 
 def backup(listDict):
     now = datetime.now()
@@ -370,7 +454,7 @@ def start_window(num_variants=5):
     delete_btn = Button(window, text="Delete Entry", command=partial(delete_entry, listDict))
     delete_btn.grid(column=2, row=1)
 
-    save_and_exit_btn = Button(window, text="Save&Exit", command=partial(save_and_exit, listDict, listNodes))
+    save_and_exit_btn = Button(window, text="Save&Exit", command=partial(save_and_exit, listDict))
     save_and_exit_btn.grid(column=3, row=1)
 
     backup_btn = Button(window, text="Backup ("+key_bindings["backup_btn"][1]+")", command=partial(backup, listDict))
@@ -384,7 +468,7 @@ def start_window(num_variants=5):
                                                                  input_phn_text=input_phn_text,
                                                                  input_word_text=input_word_text))
 
-    window.bind(key_bindings["change_g2p_textbox"][0] , partial(change_g2p_textbox_evt,  window=window,
+    window.bind(key_bindings["change_g2p_textbox"][0], partial(change_g2p_textbox_evt,  window=window,
                                                                  proba_lbls=proba_lbls, phn_lbls=phn_lbls,
                                                                  phn_play_btns=phn_play_btns,  copy_btns=copy_btns,
                                                                  input_phn_text=input_phn_text,
@@ -393,6 +477,8 @@ def start_window(num_variants=5):
     reload_g2p_btn.grid(column=4, row=8)
 
     change_g2p("test", window, proba_lbls, phn_lbls, phn_play_btns, copy_btns, input_phn_text, input_word_text)
+
+    window.bind(key_bindings["find_btn_hotkey"][0], partial(search_listboxes_evt, window=window, listDict=listDict, listNodes=listNodes))
 
     window.mainloop()
 
