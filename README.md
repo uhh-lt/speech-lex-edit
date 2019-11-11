@@ -53,6 +53,6 @@ dfki-pavoque-neutral
 
 # Running
 
-After you've installed the requirements, you should be able to run the program with python3 speech-lex-edit.py
+After you've installed the requirements, you should be able to run the program with python3 speech_lex_edit.py
 
-A g2p model is necessary and there is a precomputed one for German in this repository.
+A G2P model is necessary and there is a precomputed one for German in this repository.
