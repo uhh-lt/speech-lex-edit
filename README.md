@@ -1,4 +1,16 @@
-Requirements:
+# Speech lex edit
+
+Speech lex edit is a phonetic lexicon editor for ASR and TTS systems. You can use it to create lexicon entries for OOV semi-automatically, i.e. pronounciation entries are suggested by a G2P model and can be manually edited. Feedback is provided by synthesizing the phonetic entry with a TTS engine. The intended target language is German, but it should be relatively straightforward to use it with another language, as long as it is compatible with [MARY](http://mary.dfki.de/).
+
+# Screenshot
+
+![Speech-lex-edit screenshot](https://raw.githubusercontent.com/uhh-lt/speech-lex-edit/master/screenshot.png "Speech-lex-edit screenshot")
+
+# Installation
+
+Speech lex edit is a Python3 program (cross-platform GUI with tkinter) and tested on Linux and Mac OS X. Playback of phonetic entries needs the simpleaudio package and the requests module to communicate with [MARY](http://mary.dfki.de/). Furthermore you need an installation of the G2P software [Sequitur G2P](https://github.com/sequitur-g2p/) (also Python software) and the TTS software [MARY](http://mary.dfki.de/) (Java). See below:
+
+## Requirements:
 
 pip3 install simpleaudio requests
 
@@ -38,3 +50,9 @@ Then run the component installer:
 
 And install DFKIs unit selection voice for German (one of the best available):
 dfki-pavoque-neutral
+
+# Running
+
+After you've installed the requirements, you should be able to run the program with python3 speech-lex-edit.py
+
+A g2p model is necessary and there is a precomputed one for German in this repository.
