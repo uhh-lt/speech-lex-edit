@@ -1,6 +1,6 @@
 # Speech lex edit
 
-Speech lex edit is a phonetic lexicon editor for ASR and TTS systems. You can use it to create lexicon entries for OOV semi-automatically, i.e. pronounciation entries are suggested by a G2P model and can be manually edited. Feedback is provided by synthesizing the phonetic entry with a TTS engine. The intended target language is German, but it should be relatively straightforward to use it with another language, as long as it is compatible with [MARY](http://mary.dfki.de/).
+Speech lex edit is a phonetic lexicon editor for ASR and TTS systems. You can use it to create lexicon entries for OOV semi-automatically, i.e. pronounciation entries are suggested by a grapheme-to-phoneme (G2P) model and can then be manually edited. Feedback is provided by synthesizing the phonetic entry with a TTS engine. The intended target language is German, but it should be relatively straightforward to use it with another language, as long as it is compatible with [MARY](http://mary.dfki.de/).
 
 # Screenshot
 
