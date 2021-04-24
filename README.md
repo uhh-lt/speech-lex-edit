@@ -57,6 +57,15 @@ dfki-pavoque-neutral
 
 # Running
 
-After you've installed the requirements, you should be able to run the program with python3 speech_lex_edit.py
+After you've installed the requirements, you should be able to run the program.
+
+You need to start the mary server in one terminal:
+```
+./marytts-5.2/bin/marytts-server
+```
+In a second terminal you run the program:
+```
+python3 speech_lex_edit.py
+```
 
 A G2P model is necessary and there is a precomputed one for German in this repository.
