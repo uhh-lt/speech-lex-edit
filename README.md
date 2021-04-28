@@ -12,7 +12,9 @@ Speech lex edit is a Python3 program (cross-platform GUI with tkinter) and teste
 
 ## Requirements:
 
+```
 pip3 install simpleaudio requests
+```
 
 simpleaudio is needed for audio output, the requests module is used to communicate with mary.
 
@@ -20,7 +22,7 @@ Install sequitur G2P:
 
 You can install sequitur G2P on Linux and on Mac OS X, dependencies are swig and Python. It is now possible to install the latest version of sequitur-g2p with python3 by using the newest version in Git: 
 
-    sudo apt-get install swig #Ubuntu Linux
+    sudo apt-get install swig python3-tk #Ubuntu Linux
 
     brew install swig # Mac OS X
 
@@ -55,6 +57,15 @@ dfki-pavoque-neutral
 
 # Running
 
-After you've installed the requirements, you should be able to run the program with python3 speech_lex_edit.py
+After you've installed the requirements, you should be able to run the program.
+
+You need to start the mary server in one terminal:
+```
+./marytts-5.2/bin/marytts-server
+```
+In a second terminal you run the program:
+```
+python3 speech_lex_edit.py
+```
 
 A G2P model is necessary and there is a precomputed one for German in this repository.
